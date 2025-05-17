@@ -1,0 +1,2 @@
+# This file ensures that only one migration can be applied at a time.
+# It is automatically created and managed by Prisma Migrate.

@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  title: Weather Backend API
+  version: 1.0.0
+  description: OpenWeather demo backend for Backend Engineer Intern Case Study
+servers:  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        role: { type: string, enum: [ADMIN, USER] }
+        createdAt: { type: string, format: date-time }
+    WeatherQuery:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        city: { type: string }
+        data: { type: object }
+        requestedAt: { type: string, format: date-time }
+paths:
+  /api/health:
+    get:
+      summary: Health Check
+      description: Returns the health status of the API
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  timestamp: { type: string, format: date-time }
+  /auth/signup:
+    post:
+      summary: Signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [ADMIN, USER] }
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+  /weather:
+    get:
+      summary: Get weather for city
+      parameters:
+        - in: query
+          name: city
+          schema: { type: string }
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Weather data
+          content:
+            application/json:
+              schema:
+                type: object
+  /queries:
+    get:
+      summary: List weather queries
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of queries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/WeatherQuery' }
+  /admin/users:
+    post:
+      summary: Create user (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [ADMIN, USER] }
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    get:
+      summary: List users (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/User' }

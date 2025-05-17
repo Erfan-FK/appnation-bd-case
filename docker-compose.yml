@@ -1,0 +1,35 @@
+services:
+  api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+      - redis
+    # Use the CMD from Dockerfile (no need to run pnpm install again)
+    # command: node dist/server.js
+    volumes:
+      - ./src:/app/src:ro  # Mount source as read-only for debugging
+  mysql:
+    image: mysql:8.3
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: weather
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+volumes:
+  mysql-data:
+  redis-data:
